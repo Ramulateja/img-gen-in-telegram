@@ -1,0 +1,170 @@
+{
+  "name": "image generation",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        0
+      ],
+      "id": "4621210e-5ad0-496b-82d1-29ddafc70a56",
+      "name": "Send a photo message",
+      "webhookId": "db5dcdcd-adbc-487c-ac25-bd68123a96bc",
+      "credentials": {
+        "telegramApi": {
+          "id": "r2V1uUM9goI7VJNy",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "acd0f310-e739-47c3-a352-22f721648607",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "LliMhp2TeGcvpVtL",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fcf8bd21-cfaf-4bcc-9cd5-47c863cfd254",
+      "name": "Telegram Trigger",
+      "webhookId": "56698d32-3120-4733-9d76-80ef39fe9a8d",
+      "credentials": {
+        "telegramApi": {
+          "id": "saPZlDJaBzeHZYwU",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=your a prompt enhancer and your job is to enhance the user text or message provided\nuser message:-{{ $json.message.text }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8b66a50e-1328-40e5-821e-badc024cfa9a",
+      "name": "AI Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        208,
+        224
+      ],
+      "id": "1b9d26f9-a337-48a5-a541-39adf8c89a1b",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "yQ6oKK0XwKtmnBkZ",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "55e34484-c63a-4470-a931-b3e34a208257",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "44d255eb1a1d233143811459b757d68e31a3ffb8ac8910f9c93dbd82ab339d0a"
+  },
+  "id": "XWtnsLDPjZW5IQYh",
+  "tags": []
+}
