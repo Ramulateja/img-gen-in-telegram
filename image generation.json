@@ -1,0 +1,167 @@
+{
+  "name": "image generation",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6246e8d7-d1d5-4ef1-87a9-359582e4e667",
+      "name": "Telegram Trigger",
+      "webhookId": "303519d5-10a4-460d-8d8f-dbc8388b77c5",
+      "credentials": {
+        "telegramApi": {
+          "id": "r2V1uUM9goI7VJNy",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=your a prompt enhancer and your job is to enhance the user text or message provided\nuser message:-{{ $json.message.text }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5e6922b0-a0e5-4dea-a922-d39fdb1ba39d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "dd4c2747-2399-42df-adbf-c224cd1be1f6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlfUBP3Eq6U4S24K",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "44b98ecd-7963-4b15-822f-bc02f55f2c42",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "LliMhp2TeGcvpVtL",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "4621210e-5ad0-496b-82d1-29ddafc70a56",
+      "name": "Send a photo message",
+      "webhookId": "db5dcdcd-adbc-487c-ac25-bd68123a96bc",
+      "credentials": {
+        "telegramApi": {
+          "id": "r2V1uUM9goI7VJNy",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a1a7cba1-a461-4359-9532-0ce8a2e4aa0b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "44d255eb1a1d233143811459b757d68e31a3ffb8ac8910f9c93dbd82ab339d0a"
+  },
+  "id": "XWtnsLDPjZW5IQYh",
+  "tags": []
+}
